@@ -46,9 +46,19 @@ html {
 
 input,
 textarea,
-select button {
+select,
+button {
   font-size: inherit;
   font-weight: inherit;
+}
+
+button:hover {
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 input {

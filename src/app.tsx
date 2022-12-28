@@ -6,7 +6,7 @@ import { Countdown } from "./components/Countdown";
 import YouTubePlayer from "youtube-player";
 import { YouTubePlayer as YouTubePlayerType } from "youtube-player/dist/types";
 
-let player: YouTubePlayerType;
+import VideoManager from "./classes/VideoManager";
 
 export function App() {
   const [primed, setPrimed] = useState(true);
@@ -26,22 +26,20 @@ export function App() {
 
       if (syncTime && targetDate && primed) {
         if (newDate.getTime() >= targetDate!.getTime() - syncTime! * 1000) {
-          player.playVideo();
+          VideoManager.player.playVideo();
         }
       }
-    }, 50);
+    }, 10);
 
     // DOM loaded, load video
-    if (!player && videoRef.current) {
-      player = YouTubePlayer("video");
-      player.loadVideoById("3_-a9nVZYjk");
+    if (!VideoManager.initialized && videoRef.current) {
+      VideoManager.init("https://youtu.be/3_-a9nVZYjk", "video");
     }
 
     return () => clearInterval(ticker);
-  }, [syncTime, targetDate]);
+  }, [syncTime, targetDate, primed]);
 
   function changeTargetDate(e: Event) {
-    console.log(e.target);
     setTargetDate(new Date((e.target as HTMLInputElement).value));
   }
 
@@ -56,14 +54,14 @@ export function App() {
         <div className="main__video">
           <div id="video" ref={videoRef}></div>
         </div>
-        <aside className="main__panel">
+        <aside className="main__panel" data-disabled={primed}>
           <h2 className="main__heading">Configuration</h2>
           <form action="#" className="main__form">
-            <fieldset className="main__fieldset">
+            <fieldset className="main__fieldset" disabled={primed}>
               <label htmlFor="url">Video URL</label>
               <input type="url" name="url" id="url" />
             </fieldset>
-            <fieldset className="main__fieldset">
+            <fieldset className="main__fieldset" disabled={primed}>
               <div className="main__fieldset-group">
                 <label htmlFor="target-date">Target Time</label>
                 <input type="datetime-local" name="target-date" id="target-date" onInput={changeTargetDate} />
@@ -75,8 +73,12 @@ export function App() {
             </fieldset>
           </form>
           <main className="main__controls">
-            <button className="main__unprime-btn">Unprime</button>
-            <button className="main__prime-btn">Prime</button>
+            <button className="main__unprime-btn" disabled={!primed} onClick={() => setPrimed(false)}>
+              Unprime
+            </button>
+            <button className="main__prime-btn" disabled={primed} onClick={() => setPrimed(true)}>
+              Prime
+            </button>
           </main>
         </aside>
       </main>

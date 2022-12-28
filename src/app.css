@@ -66,7 +66,7 @@ body {
 
 .main__heading {
   text-align: center;
-  margin-bottom: 1em;
+  margin-bottom: 0.5em;
 }
 
 .main__panel {
@@ -75,11 +75,19 @@ body {
   max-width: 500px;
   background-color: hsl(var(--clr-neutral-200));
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.main__panel[data-disabled="true"] {
+  background-color: hsl(var(--clr-neutral-200), 0.5);
+  color: hsl(var(--clr-neutral-900), 0.4);
 }
 
 .main__fieldset {
   border: none;
   margin: 1em 0;
+  color: inherit;
 }
 
 .main__fieldset-group {
@@ -88,4 +96,26 @@ body {
 
 .main__fieldset label {
   margin-right: 0.5em;
+  color: inherit;
+}
+
+.main__fieldset input:disabled {
+  opacity: 0.4;
+}
+
+.main__controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  margin-top: auto;
+}
+
+.main__controls button {
+  flex-grow: 1;
+  background-color: hsl(var(--clr-neutral-300));
+  border: none;
+  border-radius: 100vmax;
+  padding: 0.5em 0.75em;
+  color: hsl(var(--clr-neutral-900));
+  font-weight: 600;
 }

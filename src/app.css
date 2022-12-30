@@ -77,9 +77,10 @@ body {
   border-radius: 8px;
   display: flex;
   flex-direction: column;
+  transition: background-color 0.5s ease, color 0.4s ease;
 }
 
-.main__panel[data-disabled="true"] {
+.main__panel[data-disabled] {
   background-color: hsl(var(--clr-neutral-200), 0.5);
   color: hsl(var(--clr-neutral-900), 0.4);
 }
@@ -90,13 +91,26 @@ body {
   color: inherit;
 }
 
+.main__fieldset.profiles button {
+  background-color: hsl(var(--clr-neutral-300));
+  padding: 0.5em 0.75em;
+  border: none;
+  border-radius: 4px;
+}
+
 .main__fieldset-group {
   margin-bottom: 0.5em;
 }
 
 .main__fieldset label {
   margin-right: 0.5em;
+  margin-bottom: 0.25em;
   color: inherit;
+}
+
+.main__fieldset input {
+  width: 100%;
+  transition: background-color 0.5s ease;
 }
 
 .main__fieldset input:disabled {
@@ -117,5 +131,54 @@ body {
   border-radius: 100vmax;
   padding: 0.5em 0.75em;
   color: hsl(var(--clr-neutral-900));
+  font-weight: 600;
+}
+
+.profiles-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+  pointer-events: none;
+  transition: background-color 0.25s ease, backdrop-filter 0.3s ease, visibility 0s 0.3s linear;
+}
+
+.profiles-modal--shown {
+  visibility: visible;
+  backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.25);
+  pointer-events: all;
+  transition: background-color 0.25s ease, backdrop-filter 0.3s ease, visibility 0s 0s linear;
+}
+
+.profiles-modal__content {
+  width: 100%;
+  max-width: 80rem;
+  padding: 1em;
+  background-color: hsl(var(--clr-neutral-200));
+  border-radius: 4px;
+  box-shadow: 0 0 16px -2px rgba(0, 0, 0, 0.5);
+  position: relative;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.profiles-modal--shown .profiles-modal__content {
+  opacity: 1;
+}
+
+.profiles-modal__close-btn {
+  background-color: transparent;
+  font-size: 3rem;
+  padding: 0.5em 0.75em;
+  position: absolute;
+  top: 0;
+  right: 0;
+  border: none;
   font-weight: 600;
 }

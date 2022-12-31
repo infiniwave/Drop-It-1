@@ -1,9 +1,9 @@
-import { component$, useClientEffect$, useSignal, useStore } from "@builder.io/qwik";
+import { $, component$, useClientEffect$, useSignal, useStore } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
-import { uuid } from "uuidv4";
-import ProfileManager from "~/classes/ProfileManager";
+import ProfileManager, { id } from "~/classes/ProfileManager";
 import VideoManager from "~/classes/VideoManager";
 import { Countdown } from "~/components/Countdown";
+import { Profile } from "~/types";
 
 interface Store {
   primed: boolean;
@@ -23,6 +23,8 @@ export default component$(() => {
     targetDate: null,
     syncTime: null,
   });
+
+  const profileManager = useStore<{ profile?: Profile; all?: Profile[]; clicked?: boolean; }>({});
 
   const profilesModalShown = useStore({ shown: false });
 
@@ -65,7 +67,23 @@ export default component$(() => {
     }
   });
 
-  const defaultProfile = ProfileManager.getPrimedProfile() || ProfileManager.load(undefined);
+  useClientEffect$(async ({ track }) => {
+    const state = track(() => profileManager.clicked);
+    console.log("this ran");
+    profileManager.profile = ProfileManager.getPrimedProfile() || ProfileManager.load(undefined);
+    profileManager.all = ProfileManager.getAll();
+    if (state) {
+      const profileId = await id();
+      ProfileManager.save(profileId, {
+        id: profileId,
+        name: store.name!,
+        date: store.targetDate!.getTime(),
+        videoUrl: store.videoUrl!,
+        syncTime: store.syncTime!,
+      });
+      profileManager.clicked = false;
+    }
+  });
 
   return (
     <>
@@ -89,8 +107,8 @@ export default component$(() => {
               <label for="profiles">Load Profile</label>
               <div class="main__fieldset-group">
                 <select name="profiles" id="profiles">
-                  {defaultProfile != null ? <option value={defaultProfile.id}>{defaultProfile.name}</option> : null}
-                  {ProfileManager.getAll().map((profile) => (
+                  {profileManager.profile !== undefined ? <option value={profileManager.profile.id}>{profileManager.profile.name}</option> : null}
+                  {profileManager.all?.map((profile) => (
                     <option value={profile.id}>{profile.name}</option>
                   ))}
                 </select>
@@ -100,16 +118,10 @@ export default component$(() => {
                   </button>
                   <button
                     type="button"
-                    onClick$={() => {
-                      const id = uuid();
-                      ProfileManager.save(id, {
-                        id: id,
-                        name: store.name!,
-                        date: store.targetDate!.getTime(),
-                        videoUrl: store.videoUrl!,
-                        syncTime: store.syncTime!,
-                      });
-                    }}
+                    onClick$={$(() => {
+                      // throw "Error";
+                      profileManager.clicked = true;
+                    })}
                     disabled={!store.targetDate || !store.syncTime || !store.videoUrl}
                   >
                     Save

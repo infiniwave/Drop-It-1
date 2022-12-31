@@ -48,7 +48,7 @@ export default component$(() => {
 
     // DOM loaded, load video
     if (!VideoManager.initialized && videoRef.value) {
-      VideoManager.init("https://youtu.be/3_-a9nVZYjk", "video");
+      // VideoManager.init("https://youtu.be/3_-a9nVZYjk", "video");
     }
 
     return () => clearInterval(ticker);
@@ -73,7 +73,6 @@ export default component$(() => {
     profileManager.profile = ProfileManager.getPrimedProfile() || ProfileManager.load(undefined);
     profileManager.all = ProfileManager.getAll();
     if (state) {
-      // const id = uuid();
       const profileId = await id();
       ProfileManager.save(profileId, {
         id: profileId,

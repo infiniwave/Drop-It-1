@@ -69,8 +69,7 @@ export default class ProfileManager {
   }
 }
 
-export 
-const id = async () => {
+export const id = async () => {
   if (Object.prototype.hasOwnProperty.call(self, "crypto")) {
     let buffer = new Uint8Array(16);
     crypto.getRandomValues(buffer);

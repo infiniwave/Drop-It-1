@@ -14,7 +14,7 @@ export function Countdown({ currentDate, targetDate, syncTime }: { currentDate: 
   const hours = Math.floor(dateDiff / (1000 * 60 * 60)) % 24;
   const days = Math.floor(dateDiff / (1000 * 60 * 60 * 24));
 
-  const secondsRemaining = targetDate == null ? 0 : Math.ceil((targetDate.getTime() - currentDate.getTime()) / 1000) - syncTime;
+  const secondsRemaining = targetDate == null ? 0 : Math.ceil((targetDate.getTime() - currentDate.getTime()) / 1000 - syncTime);
 
   console.log(secondsRemaining);
 

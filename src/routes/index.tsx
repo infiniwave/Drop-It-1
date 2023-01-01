@@ -95,11 +95,6 @@ export default component$(() => {
     }
   });
 
-  function asdf(asdf: any) {
-    console.log(asdf);
-    return asdf;
-  }
-
   return (
     <>
       <Countdown currentDate={store.currentDate} targetDate={store.targetDate} syncTime={store.syncTime || 0} />
@@ -188,6 +183,7 @@ export default component$(() => {
                   type="number"
                   name="drop-time"
                   id="drop-time"
+                  step={0.05}
                   onInput$={(e) => (store.syncTime = (e.target as HTMLInputElement).valueAsNumber)}
                   required
                   value={store.syncTime || ""}

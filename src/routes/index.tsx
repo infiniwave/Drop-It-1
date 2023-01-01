@@ -24,7 +24,7 @@ export default component$(() => {
     syncTime: null,
   });
 
-  const profileManager = useStore<{ profile?: Profile; all?: Profile[]; clicked?: boolean; }>({});
+  const profileManager = useStore<{ profile?: Profile; all?: Profile[]; clicked?: boolean }>({});
 
   const profilesModalShown = useStore({ shown: false });
 
@@ -42,14 +42,11 @@ export default component$(() => {
           const correctTime = Math.round((state.syncTime - (state.targetDate.getTime() - state.currentDate.getTime()) / 1000 + Number.EPSILON) * 100) / 100;
 
           VideoManager.validatePlaytime(correctTime);
+        } else {
+          if (document.querySelector("body")?.classList.contains("playing")) document.querySelector("body")?.classList.remove("playing");
         }
       }
     }, 50);
-
-    // DOM loaded, load video
-    if (!VideoManager.initialized && videoRef.value) {
-      // VideoManager.init("https://youtu.be/3_-a9nVZYjk", "video");
-    }
 
     return () => clearInterval(ticker);
   });
@@ -67,10 +64,23 @@ export default component$(() => {
     }
   });
 
+  useClientEffect$(() => {
+    const primedProfile = ProfileManager.getPrimedProfile();
+    const profile = ProfileManager.load(undefined);
+
+    profileManager.profile = primedProfile || profile;
+
+    if (profileManager.profile) {
+      store.primed = primedProfile != null;
+      store.videoUrl = profileManager.profile.videoUrl;
+      store.name = profileManager.profile.name;
+      store.syncTime = profileManager.profile.syncTime;
+      store.targetDate = new Date(profileManager.profile.date);
+    }
+  });
+
   useClientEffect$(async ({ track }) => {
     const state = track(() => profileManager.clicked);
-    console.log("this ran");
-    profileManager.profile = ProfileManager.getPrimedProfile() || ProfileManager.load(undefined);
     profileManager.all = ProfileManager.getAll();
     if (state) {
       const profileId = await id();
@@ -85,25 +95,46 @@ export default component$(() => {
     }
   });
 
+  function asdf(asdf: any) {
+    console.log(asdf);
+    return asdf;
+  }
+
   return (
     <>
-      <Countdown currentDate={store.currentDate} targetDate={store.targetDate} />
+      <Countdown currentDate={store.currentDate} targetDate={store.targetDate} syncTime={store.syncTime || 0} />
       <main class="main">
         <div class="main__video">
-          <div id="video" ref={videoRef}></div>
+          <div class="main__video-container">
+            <div id="video" ref={videoRef}></div>
+          </div>
         </div>
         <aside class="main__panel" data-disabled={store.primed}>
           <h2 class="main__heading">Configuration</h2>
-          <form action="#" class="main__form">
+          <form action="#" class="main__form" id="config-form">
             <fieldset class="main__fieldset" disabled={store.primed}>
               <label for="title">Name</label>
-              <input type="title" name="title" id="title" onInput$={(e) => (store.name = (e.target as HTMLInputElement).value)} />
+              <input
+                type="title"
+                name="title"
+                id="title"
+                onInput$={(e) => (store.name = (e.target as HTMLInputElement).value)}
+                required
+                value={store.name || ""}
+              />
             </fieldset>
             <fieldset class="main__fieldset" disabled={store.primed}>
               <label for="url">Video URL</label>
-              <input type="url" name="url" id="url" onInput$={(e) => (store.videoUrl = (e.target as HTMLInputElement).value)} />
+              <input
+                type="url"
+                name="url"
+                id="url"
+                onInput$={(e) => (store.videoUrl = (e.target as HTMLInputElement).value)}
+                required
+                value={store.videoUrl || ""}
+              />
             </fieldset>
-            <fieldset class="main__fieldset profiles" disabled={store.primed}>
+            {/* <fieldset class="main__fieldset profiles" disabled={store.primed}>
               <label for="profiles">Load Profile</label>
               <div class="main__fieldset-group">
                 <select name="profiles" id="profiles">
@@ -128,7 +159,7 @@ export default component$(() => {
                   </button>
                 </div>
               </div>
-            </fieldset>
+            </fieldset> */}
             <fieldset class="main__fieldset" disabled={store.primed}>
               <div class="main__fieldset-group">
                 <label for="target-date">Target Time</label>
@@ -136,21 +167,63 @@ export default component$(() => {
                   type="datetime-local"
                   name="target-date"
                   id="target-date"
+                  required
+                  value={
+                    store.targetDate
+                      ? `${store.targetDate.getFullYear()}-${(store.targetDate.getMonth() + 1).toString().padStart(2, "0")}-${store.targetDate
+                          .getDate()
+                          .toString()
+                          .padStart(2, "0")}T${store.targetDate.getHours().toString().padStart(2, "0")}:${store.targetDate
+                          .getMinutes()
+                          .toString()
+                          .padStart(2, "0")}`
+                      : ""
+                  }
                   onInput$={(e) => (store.targetDate = new Date((e.target as HTMLInputElement).value))}
                 />
               </div>
               <div class="main__fieldset-group">
                 <label for="drop-time">Video Sync Time</label>
-                <input type="number" name="drop-time" id="drop-time" onInput$={(e) => (store.syncTime = (e.target as HTMLInputElement).valueAsNumber)} />
+                <input
+                  type="number"
+                  name="drop-time"
+                  id="drop-time"
+                  onInput$={(e) => (store.syncTime = (e.target as HTMLInputElement).valueAsNumber)}
+                  required
+                  value={store.syncTime || ""}
+                />
               </div>
             </fieldset>
           </form>
           <div class="main__controls">
-            <button class="main__unprime-btn" disabled={!store.primed} onClick$={() => (store.primed = false)}>
+            <button
+              class="main__unprime-btn"
+              disabled={!store.primed}
+              onClick$={() => {
+                store.primed = false;
+              }}
+            >
               Unprime
             </button>
-            <button class="main__prime-btn" disabled={store.primed} onClick$={() => (store.primed = true)}>
-              Prime
+            <button
+              class="main__prime-btn"
+              disabled={store.primed}
+              onClick$={() => {
+                const valid = (document.getElementById("config-form") as HTMLFormElement).reportValidity();
+                if (!valid) return;
+
+                store.primed = true;
+
+                ProfileManager.savePrimed({
+                  id: null,
+                  date: store.targetDate?.getTime()!,
+                  name: store.name!,
+                  syncTime: store.syncTime!,
+                  videoUrl: store.videoUrl!,
+                });
+              }}
+            >
+              Prime & Save
             </button>
           </div>
         </aside>

@@ -8,7 +8,9 @@ export default component$(() => {
   return (
     <>
       <Slot />
-      <footer></footer>
+      <footer class="footer">
+        <p class="footer__text">Made by Emperor of Bluegaria (Jack H.)</p>
+      </footer>
     </>
   );
 });

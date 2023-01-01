@@ -1,4 +1,4 @@
-import { Profile } from "~/types";
+import { PrimedProfile, Profile } from "~/types";
 
 export default class ProfileManager {
   private static getProfileByIndex(index: number): Profile | null {
@@ -37,6 +37,10 @@ export default class ProfileManager {
     if (!id) return id;
   }
 
+  private static savePrimedProfile(profile: PrimedProfile): void {
+    localStorage.setItem("primed_profile", JSON.stringify(profile));
+  }
+
   public static getAll(): Profile[] {
     const profiles = localStorage.getItem("profiles");
 
@@ -67,15 +71,17 @@ export default class ProfileManager {
   public static save(id: string, profile: Profile) {
     this.saveProfile(id, profile);
   }
+
+  public static savePrimed(profile: PrimedProfile): void {
+    this.savePrimedProfile(profile);
+  }
 }
 
 export const id = async () => {
   if (Object.prototype.hasOwnProperty.call(self, "crypto")) {
     let buffer = new Uint8Array(16);
     crypto.getRandomValues(buffer);
-    return [...buffer]
-      .map(x => x.toString(16).padStart(2, "0"))
-      .join("");
+    return [...buffer].map((x) => x.toString(16).padStart(2, "0")).join("");
   } else {
     return (await import("crypto")).randomBytes(16).toString("hex");
   }

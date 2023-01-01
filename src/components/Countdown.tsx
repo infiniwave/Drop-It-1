@@ -1,4 +1,4 @@
-export function Countdown({ currentDate, targetDate }: { currentDate: Date; targetDate: Date | null }) {
+export function Countdown({ currentDate, targetDate, syncTime }: { currentDate: Date; targetDate: Date | null; syncTime: number }) {
   const dateFormatter = new Intl.DateTimeFormat(undefined, {
     hour: "numeric",
     minute: "numeric",
@@ -13,6 +13,10 @@ export function Countdown({ currentDate, targetDate }: { currentDate: Date; targ
   const minutes = date.getMinutes();
   const hours = Math.floor(dateDiff / (1000 * 60 * 60)) % 24;
   const days = Math.floor(dateDiff / (1000 * 60 * 60 * 24));
+
+  const secondsRemaining = targetDate == null ? 0 : Math.ceil((targetDate.getTime() - currentDate.getTime()) / 1000) - syncTime;
+
+  console.log(secondsRemaining);
 
   return (
     <div class="countdown">
@@ -42,7 +46,8 @@ export function Countdown({ currentDate, targetDate }: { currentDate: Date; targ
         </li>
       </ol>
       <div class="countdown__current">
-        <span class="countdown__current-time">{dateFormatter.format(currentDate)}</span>
+        <p class="countdown__current-video-countdown">{secondsRemaining < 60 && secondsRemaining >= 0 ? `Video starts in: ${secondsRemaining}s` : ""}</p>
+        <p class="countdown__current-time">{dateFormatter.format(currentDate)}</p>
       </div>
     </div>
   );

@@ -6,3 +6,7 @@ export interface Profile {
   syncTime: number;
   [key: string];
 }
+
+export interface PrimedProfile extends Profile {
+  id: string | null;
+}

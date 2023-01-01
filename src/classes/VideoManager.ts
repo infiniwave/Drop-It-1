@@ -8,12 +8,14 @@ export default class VideoManager {
 
   private static isPlaying = false;
 
+  public static videoDuration: number | null = null;
+
   public static init(url: string, domId: string) {
     this.load(url, domId);
     this.initialized = true;
   }
 
-  public static load(url: string, domId: string) {
+  public static async load(url: string, domId: string) {
     if (!validateURL(url)) return;
     const id = getVideoID(url);
 
@@ -28,16 +30,20 @@ export default class VideoManager {
         controls: 0,
       },
     });
+
+    this.videoDuration = await this.player.getDuration();
   }
 
   public static play() {
     if (this.isPlaying) return;
     this.isPlaying = true;
+    document.querySelector("body")?.classList.add("playing");
+
     this.player.playVideo();
   }
 
   public static async validatePlaytime(expectedTime: number) {
-    if (!this.isPlaying) return;
+    if (!this.isPlaying || expectedTime > this.videoDuration!) return;
 
     if (Math.abs((await this.player.getCurrentTime()) - expectedTime) > 0.5) {
       this.player.seekTo(expectedTime, true);

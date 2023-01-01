@@ -81,6 +81,20 @@ video {
   display: block;
 }
 
+.footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 30vh;
+  background-color: hsl(var(--clr-neutral-300));
+  margin: -1em;
+}
+
+.playing .footer {
+  background-color: hsl(var(--clr-neutral-100));
+}
+
 @media screen AND (max-width: 650px) {
   :root {
     font-size: 25%;
